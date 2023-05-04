@@ -15,7 +15,7 @@ import visualiser
 import settings as s
 
 
-path = "/Users/Jakob/documents/python/Sound/Audiodevice/audiodevice"
+path = r"path/to/audiodevice/exe"
 
 Mic = None
 Speaker = None
