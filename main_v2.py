@@ -19,7 +19,7 @@ path = r"/Users/Jakob/Documents/Python/Sound/Audiodevice/audiodevice"
 BUFFERSIZE_playback = 128
 BUFFERSIZE_show = BUFFERSIZE_playback * 4
 
-FFT_SAMPLE_POINTS = 128
+FFT_SAMPLE_POINTS = 64
 
 icon = pygame.image.load('gitVersion/icon.png')
 pygame.display.set_icon(icon)
@@ -108,7 +108,7 @@ class Audio_keeper:
 			device = sd.query_devices()[sd.default.device[0]]["name"]
 		self.speaker = sd.OutputStream(samplerate=self.fs, blocksize=BUFFERSIZE_playback, device=device)
 		self.speaker.start()
-		print(device)
+		print(f"using {device[:-1]}")
 
 		self.replay_thread = Thread(target=self.replay)
 		self.volume_thread = Thread(target=self.update_volume)
@@ -124,7 +124,7 @@ class Audio_keeper:
 
 
 class Visualizer:
-	MULTEPLY = 5000000
+	MULTEPLY = 2000000
 	MAIN_COLOR = (200,200,200)
 
 	def __init__(self, audio):
@@ -176,20 +176,30 @@ class Visualizer:
 		center_x = self.width // 2
 		center_y = self.height // 2
 
-		fft = get_fft(self.audio.audio_data)[::4]
+		fft = get_fft(self.audio.audio_data)[::]
 		for i, val in enumerate(fft):
 			angle = (i) * (math.pi / (len(fft)-1))
 
-			length = math.sqrt(val) * (320 - 20*(i%2)) * (i+2) + self.height/2*.5 + (60 * (i%2))
+			# length = math.sqrt(val) * (320 - 20*(i%2)) * (i+2) + self.height/2*.5 + (60 * (i%2))
+			length = math.sqrt(val) * 250 * (i+2) + self.height/2*.5
+
+			start_x1 = center_x + int(math.cos(angle- math.pi/2) * (120 - length/5))
+			start_y1 = center_y + int(math.sin(angle- math.pi/2) * (120 - length/5))
+			start_x2 = center_x + int(math.cos(2*math.pi-angle- math.pi/2) * (120 - length/5))
+			start_y2 = center_y + int(math.sin(2*math.pi-angle- math.pi/2) * (120 - length/5))
 
 			end_x1 = center_x + int(math.cos(angle- math.pi/2) * length)
 			end_y1 = center_y + int(math.sin(angle- math.pi/2) * length)
 			end_x2 = center_x + int(math.cos(2*math.pi-angle- math.pi/2) * length)
 			end_y2 = center_y + int(math.sin(2*math.pi-angle- math.pi/2) * length)
 
-			col = color_from_val((i+.5)/(len(fft)/2))
-			pygame.draw.circle(self.screen, col, (end_x1, end_y1), self.height/(100+80*(i%2)))
-			pygame.draw.circle(self.screen, col, (end_x2, end_y2), self.height/(100+80*(i%2)))
+			col = color_from_val((i+.5)/(len(fft)/2), min(1, math.sqrt(val) * (i+2)))
+			pygame.draw.line(self.screen, col, (start_x1, start_y1), (end_x1, end_y1), 10)
+			pygame.draw.line(self.screen, col, (start_x2, start_y2), (end_x2, end_y2), 10)
+
+		col = color_from_val(0, min(1, math.sqrt(fft[5]*10)))
+		pygame.draw.circle(self.screen, (75,0,0), (center_x, center_y), fft[5] * 20000 + self.height/2*.26)
+		pygame.draw.circle(self.screen, col, (center_x, center_y), fft[5] * 20000 + self.height/2*.24)
 
 		pygame.display.flip()
 		self.clock.tick(self.audio.fs / BUFFERSIZE_playback / 2)
