@@ -21,9 +21,7 @@ BUFFERSIZE_show = BUFFERSIZE_playback * 4
 
 FFT_SAMPLE_POINTS = 128
 
-BT_DEVICE = "bt"
-
-icon = pygame.image.load('/Users/Jakob/Desktop/sound_icon_.png')
+icon = pygame.image.load('gitVersion/icon.png')
 pygame.display.set_icon(icon)
 
 def get_fft(buffer):
@@ -55,6 +53,20 @@ def get_volume():
 		return volume
 	return 0
 
+def request_source(audio):
+	opt = ", ".join([f'"{d["name"]}"' for d in sd.query_devices() if d["max_output_channels"] > 0])
+	script = f"choose from list {{{opt}}} with title \"Choose output device:\""
+	command = ['osascript', '-e', script]
+	device = subprocess.run(command, capture_output=True, text=True).stdout
+
+	audio.speaker = sd.OutputStream(samplerate=audio.fs, blocksize=BUFFERSIZE_playback, device=device)
+	audio.speaker.start()
+
+	p = "~/Library/Application Support/ShowSound"
+	if not os.path.isdir(p): os.makedirs(p)
+	with open(os.path.join(p, "deafultDevice"), "w") as file:
+		file.write(device)
+
 class Audio_keeper:
 	def replay(self):
 		while self.is_running:
@@ -79,7 +91,6 @@ class Audio_keeper:
 		self.system_volume = 0
 		self.volume_history = [0] * 20
 
-		change_to_normal_speaker()
 		os.system(f"{path} output 'Soundflower (2ch)'")
 		atexit.register(change_to_normal_speaker)
 
@@ -90,12 +101,14 @@ class Audio_keeper:
 		self.mic.start()
 
 		try:
-			self.speaker = sd.OutputStream(samplerate=self.fs, blocksize=BUFFERSIZE_playback, device=BT_DEVICE)
-			print("BT")
+			p = "~/Library/Application Support/ShowSound"
+			with open(os.path.join(p, "deafultDevice"), "r") as file:
+				device = file.read()
 		except:
-			self.speaker = sd.OutputStream(samplerate=self.fs, blocksize=BUFFERSIZE_playback, device='Built-in Output')
-			print("Built-in")
+			device = sd.query_devices()[sd.default.device[0]]["name"]
+		self.speaker = sd.OutputStream(samplerate=self.fs, blocksize=BUFFERSIZE_playback, device=device)
 		self.speaker.start()
+		print(device)
 
 		self.replay_thread = Thread(target=self.replay)
 		self.volume_thread = Thread(target=self.update_volume)
@@ -120,7 +133,7 @@ class Visualizer:
 		pygame.init()
 		self.width, self.height = 1080, 720
 		self.screen = pygame.display.set_mode((self.width,self.height), pygame.RESIZABLE)
-		pygame.display.set_caption("feel sound")
+		pygame.display.set_caption("Show Sound")
 		
 		self.clock = pygame.time.Clock()
 
@@ -132,7 +145,10 @@ class Visualizer:
 				self.width = event.w
 				self.height = event.h
 			elif event.type == pygame.KEYDOWN:
-				pass
+				if event.key == pygame.K_SPACE:
+					t = Thread(target=request_source, args=(self.audio,))
+					t.daemon = True
+					t.start()
 
 	def show(self):
 		self.screen.fill((0,0,0))
