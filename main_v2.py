@@ -23,6 +23,9 @@ FFT_SAMPLE_POINTS = 128
 
 BT_DEVICE = "bt"
 
+icon = pygame.image.load('/Users/Jakob/Desktop/sound_icon_.png')
+pygame.display.set_icon(icon)
+
 def get_fft(buffer):
 	FFT = 2.0/FFT_SAMPLE_POINTS * np.abs(fft(buffer)[:FFT_SAMPLE_POINTS])
 	return np.array(FFT)
