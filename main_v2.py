@@ -161,7 +161,7 @@ class Visualizer:
 		for i, val in enumerate(fft):
 			angle = (i) * (math.pi / (len(fft)-1))
 
-			length = math.sqrt(val) * (320 - 20*(i%2)) * (i+2) + 180 + (50 * (i%2))
+			length = math.sqrt(val) * (320 - 20*(i%2)) * (i+2) + self.height/2*.5 + (60 * (i%2))
 
 			end_x1 = center_x + int(math.cos(angle- math.pi/2) * length)
 			end_y1 = center_y + int(math.sin(angle- math.pi/2) * length)
@@ -169,8 +169,8 @@ class Visualizer:
 			end_y2 = center_y + int(math.sin(2*math.pi-angle- math.pi/2) * length)
 
 			col = color_from_val((i+.5)/(len(fft)/2))
-			pygame.draw.circle(self.screen, col, (end_x1, end_y1), 5)
-			pygame.draw.circle(self.screen, col, (end_x2, end_y2), 5)
+			pygame.draw.circle(self.screen, col, (end_x1, end_y1), self.height/(100+80*(i%2)))
+			pygame.draw.circle(self.screen, col, (end_x2, end_y2), self.height/(100+80*(i%2)))
 
 		pygame.display.flip()
 		self.clock.tick(self.audio.fs / BUFFERSIZE_playback / 2)

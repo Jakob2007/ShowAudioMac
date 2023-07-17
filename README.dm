@@ -1,5 +1,8 @@
 
- # ABOUT #
+# FEEL MUSIC
+##macOS
+
+## ABOUT
 This project is a program to visualize audio in realtime.
 The program fetches the data from Soundflower and generates the fft,
 which shows the intensety of frequences in a given sample. This is than showen with pygame.
@@ -8,14 +11,17 @@ Additionally there are multiple options to visualize highs and lows. This can be
 The code smoothes the output and is compatible with bluethooth speakers.
 Desigened for MacOS
 
- # Usage #
+## Usage
 After you have installed the necessities you have to input the path to the audiodevice executable in the main file and run the main file. 
+To compile everything yourself into an app you can run this:
+python3.10 -m PyInstaller --noconsole --onefile --windowed --icon=/path/to/icon.png /path/to/main/file.py
 
- # Necessities #
+
+## Necessities
 Soundflower (https://soundflower.de.softonic.com/mac/download)
 Audiodevice (http://whoshacks.blogspot.com/2009/01/change-audio-devices-via-shell-script.html)
 
- # MIT License #
+## MIT License
 
 Copyright (c) 2023 Jakob Sauer
 
