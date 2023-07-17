@@ -9,8 +9,7 @@ The code smoothes the output and is compatible with bluethooth speakers.
 Desigened for MacOS
 
  # Usage #
-After you have installed the necessities you can configure everything in the settings file.
-Then you have to input the path to the audiodevice executable in the main file and run the main file. 
+After you have installed the necessities you have to input the path to the audiodevice executable in the main file and run the main file. 
 
  # Necessities #
 Soundflower (https://soundflower.de.softonic.com/mac/download)
